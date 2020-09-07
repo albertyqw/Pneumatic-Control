@@ -1,0 +1,56 @@
+/*
+  Pneumatic Cylinder Control
+  
+  This program is used to control a pneumatic cylinder. The program reads
+  in user input from the buttonPin and sends a HIGH to the gate of the MOSFET
+  whenever the button is pressed (i.e. the button port reads a LOW) and a LOW to 
+  the gate of the MOSFET whenever the button isn't pressed (i.e. the button port 
+  reads a HIGH).
+
+   The circuit:
+ * A MOSFET with its gate connected to pin 12, and its source and drain connected to the solenoid
+ * and powered by an external 12V power supply
+ * A pushbutton with one end connected to pin 2 and the other end going to ground
+
+  created Jan 2017
+  By: Albert W. and Sukhveer S.
+
+*/
+
+const int buttonPin = 2; // The pin that reads in the state of the button
+const int mosfetGatePin = 12; // The pin that sends a signal to the gate of the MOSFET to control the solenoid
+
+boolean isbuttonPressed = false; // Keeps track of whether or not the button is pressed
+
+void setup() {
+  // Set up the button pin as an input and attach a pullup to deal with interference
+  pinMode(buttonPin, INPUT_PULLUP);
+  // Interrupt calls the buttonPressed() everytime the button is pressed
+  attachInterrupt(digitalPinToInterrupt(buttonPin), buttonPressed, FALLING);
+  // Set up the mosfet gate pin as an output
+  pinMode(mosfetGatePin, OUTPUT);
+
+}
+
+void loop() {
+  // If the button is being pressed, 
+  if (isbuttonPressed) {
+    // Send a HIGH to the gate, which activates the cylinder
+    digitalWrite(12, HIGH); 
+    delay(250);
+
+    // If the button is no longer being pressed (which means the signal is HIGH due to the pullup),
+    // then set isButtonPressed to false which will stop the cylinder from moving
+    if (digitalRead(buttonPin) == HIGH) {
+       isbuttonPressed = false; 
+      // Send a LOW to the gate, which deactivates the cylinder
+      digitalWrite(12, LOW);
+      delay(250);
+    
+    }
+  }
+}            
+
+// Function that is called immediately after the button is pressed
+void buttonPressed() {
+  isbuttonPressed = true;
